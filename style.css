@@ -197,7 +197,8 @@ a:hover {
 #chatcontrols a.active {
   border-color: #FFCE00;
   border-bottom-width:0px;
-  font-weight:bold
+  font-weight:bold;
+  background: rgb(8, 48, 78);1
 }
 
 #chatcontrols a.active + a {
@@ -247,9 +248,6 @@ em {
   top: 25px;
 }
 
-#chatpublic, #chatfull, #chatcompact {
-  display: none;
-}
 
 #chat > div {
   overflow-x:hidden;
@@ -334,6 +332,7 @@ summary {
   padding: 0 2px;
   background: rgba(8, 48, 78, 0.9);
   width: 708px;
+  height: 23px;
   border: 1px solid #20A8B1;
   z-index: 3001;
   -webkit-box-sizing: border-box;
@@ -710,13 +709,11 @@ h3 {
 .linkdetails aside {
   display: inline-block;
   white-space: nowrap;
-  font-size: 12px;
   margin-left: 5px;
   margin-right: 5px;
 }
 
 #toolbox {
-  font-size: 12px;
   text-align: left;    /* centre didn't look as nice here as it did above in .linkdetails */
 }
 
@@ -1038,7 +1035,11 @@ table.artifact tr > * {
 }
 
 table.artifact td.info {
-  min-width: 110px;
+  min-width: 110px; /* min-width for info column, to ensure really long portal names don't crowd things out */
+}
+
+table.artifact .portal {
+  min-width: 200px; /* min-width for portal names, to ensure really long lists of artifacts don't crowd names out */
 }
 
 
@@ -1126,5 +1127,14 @@ g.checkpoint:hover circle {
 .checkpoint_table td {
 	text-align: right;
 	padding-left: 10px;
+}
+
+.text-overflow-ellipsis {
+	display: inline-block;
+	overflow: hidden;
+	white-space: nowrap;
+	text-overflow: ellipsis;
+	vertical-align: text-bottom;
+	width: 100%;
 }
 
