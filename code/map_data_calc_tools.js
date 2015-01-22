@@ -94,7 +94,9 @@ window.getDataZoomForMapZoom = function(zoom) {
       zoom = 17;
     }
   }
-
+  if (window.CONFIG_FORCE_PORTALS) {
+  zoom = window.CONFIG_FORCE_PORTALS_LEVEL;
+  }
   return zoom;
 }
 

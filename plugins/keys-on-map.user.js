@@ -68,9 +68,9 @@ window.plugin.keysOnMap.renderKey = function(guid,latLng) {
       var key = L.marker(latLng, {
         icon: L.divIcon({
           className: 'plugin-keys-on-map-key',
-          iconAnchor: [6,7],
+          iconAnchor: [-6,14],
           iconSize: [12,10],
-          html: keyCount
+          html: 'K:' + keyCount
           }),
         guid: guid
         });

@@ -58,14 +58,17 @@ window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
   // add portal level to layers
   var p = window.portals[guid];
   var levelNumber = p.options.level;
+  if (levelNumber > 0) {
   var level = L.marker(latLng, {
     icon: L.divIcon({
       className: 'plugin-portal-level-numbers',
+      iconAnchor: [-6,2],	
       iconSize: [window.plugin.portalLevelNumbers.ICON_SIZE, window.plugin.portalLevelNumbers.ICON_SIZE],
-      html: levelNumber
+      html: 'L:' + levelNumber
       }),
     guid: guid
   });
+  }
   plugin.portalLevelNumbers.levelLayers[guid] = level;
   level.addTo(plugin.portalLevelNumbers.levelLayerGroup);
 }

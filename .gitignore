@@ -1,5 +1,5 @@
 build
-localbuildsettings.py
+#localbuildsettings.py
 *.pyc
 *.swp
 *~

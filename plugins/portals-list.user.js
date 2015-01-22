@@ -2,7 +2,7 @@
 // @id             iitc-plugin-portals-list@teo96
 // @name           IITC plugin: show list of portals
 // @category       Info
-// @version        0.2.1.@@DATETIMEVERSION@@
+// @version        0.2.0.@@DATETIMEVERSION@@
 // @namespace      https://github.com/jonatkins/ingress-intel-total-conversion
 // @updateURL      @@UPDATEURL@@
 // @downloadURL    @@DOWNLOADURL@@
@@ -49,6 +49,20 @@ window.plugin.portalslist.filter = 0;
 
 
 window.plugin.portalslist.fields = [
+ {
+      title: 'Latitude',
+      value: function (portal) {
+        var coord = portal.getLatLng();
+        return coord.lat;
+      }
+    },
+    {
+      title: 'Longitude',
+      value: function (portal) {
+        var coord = portal.getLatLng();
+        return coord.lng;
+      }
+    },
   {
     title: "Portal Name",
     value: function(portal) { return portal.options.data.title; },
@@ -84,8 +98,7 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(portal.options.team===TEAM_NONE ? '-' : value+'%');
-    },
-    defaultOrder: -1,
+    }
   },
   {
     title: "Res",
@@ -94,8 +107,7 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(value);
-    },
-    defaultOrder: -1,
+    }
   },
   {
     title: "Links",
@@ -107,8 +119,7 @@ window.plugin.portalslist.fields = [
         .addClass('help')
         .attr('title', 'In:\t' + value.in.length + '\nOut:\t' + value.out.length)
         .text(value.in.length+value.out.length);
-    },
-    defaultOrder: -1,
+    }
   },
   {
     title: "Fields",
@@ -117,8 +128,7 @@ window.plugin.portalslist.fields = [
       $(cell)
         .addClass("alignR")
         .text(value);
-    },
-    defaultOrder: -1,
+    }
   },
   {
     title: "AP",
@@ -130,7 +140,7 @@ window.plugin.portalslist.fields = [
     sortValue: function(value, portal) { return value.enemyAp; },
     format: function(cell, portal, value) {
       var title = '';
-      if (teamStringToId(PLAYER.team) == portal.options.team) {
+      if (PLAYER.team == portal.options.data.team) {
         title += 'Friendly AP:\t'+value.friendlyAp+'\n'
                + '- deploy '+(8-portal.options.data.resCount)+' resonator(s)\n'
                + '- upgrades/mods unknown\n';
@@ -144,8 +154,7 @@ window.plugin.portalslist.fields = [
         .addClass('help')
         .prop('title', title)
         .html(digits(value.enemyAp));
-    },
-    defaultOrder: -1,
+    }
   },
 ];
 
@@ -207,8 +216,7 @@ window.plugin.portalslist.getPortals = function() {
 
 window.plugin.portalslist.displayPL = function() {
   var list;
-  // plugins (e.g. bookmarks) can insert fields before the standard ones - so we need to search for the 'level' column
-  window.plugin.portalslist.sortBy = window.plugin.portalslist.fields.map(function(f){return f.title;}).indexOf('Level');
+  window.plugin.portalslist.sortBy = 1;
   window.plugin.portalslist.sortOrder = -1;
   window.plugin.portalslist.enlP = 0;
   window.plugin.portalslist.resP = 0;
@@ -251,9 +259,6 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
       return sortOrder * sortField.sort(valueA, valueB, a.portal, b.portal);
     }
 
-//FIXME: sort isn't stable, so re-sorting identical values can change the order of the list.
-//fall back to something constant (e.g. portal name?, portal GUID?),
-//or switch to a stable sort so order of equal items doesn't change
     return sortOrder *
       (valueA < valueB ? -1 :
       valueA > valueB ?  1 :
@@ -351,12 +356,71 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
 
     table.appendChild(row);
   });
-
+  container.append('<div><aside><a download="Ingress Export.csv" href="' + window.plugin.portalslist.export('csv') + '">Export as .csv</a></aside>');
   container.append('<div class="disclaimer">Click on portals table headers to sort by that column. '
     + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owner by that faction or on the number behind the factions to show all but those portals.</div>');
 
   return container;
 }
+
+window.plugin.portalslist.export = function (fileformat) {
+ // alert('format :' + fileformat);
+  var file = '';
+  var uri = '';
+  switch (fileformat) {
+    case 'csv':
+      file = window.plugin.portalslist.exportCSV();
+      break;
+    case 'kml':
+      file = 'test'; //window.plugin.portalslist.exportKML();
+      break;
+  }
+  if (file !== '') {
+    //http://stackoverflow.com/questions/4639372/export-to-csv-in-jquery
+    var uri = 'data:application/' + fileformat + ';charset=UTF-8,' + encodeURIComponent(file);
+    //window.open(uri);
+}
+return uri;
+}
+
+window.plugin.portalslist.exportCSV = function(portal) {
+  var displayBounds = map.getBounds();
+  var csv='';
+  var fields = window.plugin.portalslist.fields;
+  var portals = window.plugin.portalslist.listPortals;
+  $.each(window.portals, function(i, portal) {
+   if(!displayBounds.contains(portal.getLatLng())) return true;
+   csv += '"' + portal.options.data.title + '"' + ',' + portal.options.data.latE6/1E6 + ',' + portal.options.data.lngE6/1E6 + '\t\r';
+  });
+  return csv;
+}
+
+
+function dump(arr,level) {
+	var dumped_text = "";
+	if(!level) level = 0;
+	
+	//The padding given at the beginning of the line.
+	var level_padding = "";
+	for(var j=0;j<level+1;j++) level_padding += "    ";
+	
+	if(typeof(arr) == 'object') { //Array/Hashes/Objects 
+		for(var item in arr) {
+			var value = arr[item];
+			
+			if(typeof(value) == 'object') { //If it is an array,
+				dumped_text += level_padding + "'" + item + "' ...\n";
+				dumped_text += dump(value,level+1);
+			} else {
+				dumped_text += level_padding + "'" + item + "' => \"" + value + "\"\n";
+			}
+		}
+	} else { //Stings/Chars/Numbers etc.
+		dumped_text = "===>"+arr+"<===("+typeof(arr)+")";
+	}
+	return dumped_text;
+}
+
 
 // portal link - single click: select portal
 //               double click: zoom to and select portal
