@@ -68,9 +68,10 @@ window.plugin.portalLevelNumbers.addLabel = function(guid,latLng) {
       }),
     guid: guid
   });
-  }
+  
   plugin.portalLevelNumbers.levelLayers[guid] = level;
   level.addTo(plugin.portalLevelNumbers.levelLayerGroup);
+  }
 }
 
 window.plugin.portalLevelNumbers.updatePortalLabels = function() {

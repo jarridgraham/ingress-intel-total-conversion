@@ -357,6 +357,7 @@ window.plugin.portalslist.portalTable = function(sortBy, sortOrder, filter) {
     table.appendChild(row);
   });
   container.append('<div><aside><a download="Ingress Export.csv" href="' + window.plugin.portalslist.export('csv') + '">Export as .csv</a></aside>');
+  container.append('<div><aside><a download="Ingress Export maxfield.txt" href="' + window.plugin.portalslist.export('max') + '">Export as .txt for Maxfield</a></aside>');
   container.append('<div class="disclaimer">Click on portals table headers to sort by that column. '
     + 'Click on <b>All, Neutral, Resistance, Enlightened</b> to only show portals owner by that faction or on the number behind the factions to show all but those portals.</div>');
 
@@ -374,6 +375,9 @@ window.plugin.portalslist.export = function (fileformat) {
     case 'kml':
       file = 'test'; //window.plugin.portalslist.exportKML();
       break;
+    case 'max':
+      file = window.plugin.portalslist.exportMaxfield();
+      break; 
   }
   if (file !== '') {
     //http://stackoverflow.com/questions/4639372/export-to-csv-in-jquery
@@ -390,11 +394,26 @@ window.plugin.portalslist.exportCSV = function(portal) {
   var portals = window.plugin.portalslist.listPortals;
   $.each(window.portals, function(i, portal) {
    if(!displayBounds.contains(portal.getLatLng())) return true;
-   csv += '"' + portal.options.data.title + '"' + ',' + portal.options.data.latE6/1E6 + ',' + portal.options.data.lngE6/1E6 + '\t\r';
+   csv += '"' + portal.options.data.title + '"' + ',' + portal.options.data.latE6/1E6 + ',' + portal.options.data.lngE6/1E6 + '\n';
   });
   return csv;
 }
 
+window.plugin.portalslist.exportMaxfield  = function(portal) {
+
+  var displayBounds = map.getBounds();
+  var max='';
+  var fields = window.plugin.portalslist.fields;
+  var portals = window.plugin.portalslist.listPortals;    
+  
+  $.each(window.portals, function(i, portal) {
+   if(!displayBounds.contains(portal.getLatLng())) return true;
+      var keyCount = plugin.keys.keys[portal.options.guid];
+      if (typeof keyCount == "undefined") { keyCount = 0; }
+      max += '"' + portal.options.data.title + '"' + ';' + plugin.portalslist.getPortalLink(portal) + ';' + keyCount + '\n';
+  });
+  return max;
+}
 
 function dump(arr,level) {
 	var dumped_text = "";
